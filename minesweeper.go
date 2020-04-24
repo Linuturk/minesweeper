@@ -9,15 +9,12 @@
 #
 # Your function gen(L, W, M), given L of 2, W of 3, M of 3 could return the following:
 #
-columns
 # +----+----+----+
 # | X  |    |    |
 # +--------------+
 # |    |  X | X  |
-# +----+----+----+   rows
-*/
+# +----+----+----+
 
-/*
 # How would you change your code if you also had to generate the tile numbers (the number on a non-mine tile should represent the number of mines in adjacent tiles)
 
 Example:
@@ -30,7 +27,6 @@ Example:
 # | 0 | 1 | 1 |
 # +--+--+--+
 */
-
 package main
 
 import (
@@ -119,14 +115,36 @@ func (g *grid) populate(m int) error {
 			i--
 
 			// increment adjacent points mine counters
-			g.points[y+1][x].adjacent++
-			g.points[y-1][x].adjacent++
-			g.points[y][x+1].adjacent++
-			g.points[y][x-1].adjacent++
-			g.points[y+1][x+1].adjacent++
-			g.points[y-1][x-1].adjacent++
-			g.points[y+1][x-1].adjacent++
-			g.points[y-1][x+1].adjacent++
+			// build a list of points to increment
+			pts := [][]int{
+				[]int{y + 1, x},
+				[]int{y - 1, x},
+				[]int{y, x + 1},
+				[]int{y, x - 1},
+				[]int{y + 1, x + 1},
+				[]int{y - 1, x - 1},
+				[]int{y + 1, x - 1},
+				[]int{y - 1, x + 1},
+			}
+
+			// process the adjacent points
+			for _, pt := range pts {
+
+				// friendly variable names
+				adjY := pt[0]
+				adjX := pt[1]
+
+				// handle out of range by checking bounds
+				if adjY < 0 || adjX < 0 || adjY > g.rows-1 || adjX > g.columns-1 {
+					// the point we are trying to increment is outside the grid,
+					// so skip this one.
+					continue
+				}
+
+				// increment the adjacent point
+				g.points[adjY][adjX].adjacent++
+
+			}
 
 		}
 

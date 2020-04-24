@@ -3,7 +3,7 @@
 # mines randomly located within the grid.
 #
 # Write a function that generates a random game grid. The function should take arguments for
-# Length, Width and Number of Mines. 
+# Length, Width and Number of Mines.
 #
 # The function should return the constructed 2D grid.  Place at most one mine per cell
 #
@@ -33,97 +33,130 @@ Example:
 
 package main
 
-type grid [][]point
+import (
+	"fmt"
+	"math/rand"
+)
 
-type point struct {
-  mine bool
-  adjacent int
-  x int
-  y int
-}
-
-/*[
-  [bool, bool, bool],
-  [bool, bool, bool],
+// grid is a slice of slices that contain a point
+/*
+[
+  [point, point, point],
+  [point, point, point],
 ]
 */
-
-//map[string]bool
-
-//XY = bool
-
-
-func gen(r, c, m int) (grid, error) {
-  
-  // check input
-  if r * c < m {
-    return nil, fmt.Errorf("can't fit %v mines into grid sized %v x %v", m, r, c)
-  }
-  
-  if m < 1 {
-    return nil,fmt.Errorf("please specifiy at least one mine, got %v", m)
-  }
-  
-  if r < 1 || c < 1 {
-    return nil, fmt.Errorf("can't build a grid of negative size, got %v x %v", r, c)
-  }
-  
-  g := grid
-  mines := m
-  
-  // build our grid
-  for i := 0; i < r; i++ {
-    row := []point
-    for j :=0; j < c; j++ {
-      p := point{
-        mine: false,
-        adjacent: 0,
-        x: i,
-        y: j,
-      }
-      row = append(row, point)
-    }
-    grid = append(grid, row)
-  }
-  
-  // populate with mines
-  for i := mines; i > 0 {
-  
-    x := random.Int(0, r)
-    y := random.Int(0, c)
-    
-    if grid[x][y].mine == false {
-      grid[x][y].mine = true
-      mines--
-    }   
-  }
-  
-  // populate adjacent counts
-  for x, r := range grid {
-    for y, c := range row {
-      
-      adj := 0
-      
-      if grid[x+1][y+1].mine == true {
-        adj++
-      }
-      ...
-      
-      
-    }
-  
-  
-  return grid
+type grid struct {
+	rows     int
+	columns  int
+	capacity int
+	points   [][]point
 }
 
-func (p *point) adjacent() {
-  
-  adj := 0
-  
-  if 
-  
+// point contains whether or not a mine exists, a count of adjacent mines,
+// and it's own x,y coordinates in the grid
+type point struct {
+	mine     bool
+	adjacent int
+	x        int
+	y        int
+}
+
+// gen builds a grid based on the provided rows and columns
+func (g *grid) gen(r, c int) error {
+
+	// check for negative inputs
+	if r < 1 || c < 1 {
+		return fmt.Errorf("can't build a grid of negative size, got %v x %v", r, c)
+	}
+
+	// set our attributes
+	g.rows = r
+	g.columns = c
+	g.capacity = r * c
+
+	// build our grid
+	for i := 0; i < r; i++ {
+		row := []point{}
+		for j := 0; j < c; j++ {
+			p := point{
+				mine:     false,
+				adjacent: 0,
+				x:        i,
+				y:        j,
+			}
+			row = append(row, p)
+		}
+		g = append(g, row)
+	}
+
+	return nil
+}
+
+// populate adds the given number of mines to the grid
+func (g *grid) populate(m int) error {
+
+	// check input
+	if g.capacity < m {
+		return fmt.Errorf("can't fit %v mines into grid sized %v x %v", m, g.rows, g.columns)
+	}
+	if m < 1 {
+		return fmt.Errorf("please specifiy at least one mine, got %v", m)
+	}
+
+	// populate with mines
+	for i := m; i > 0; {
+
+		x := rand.Intn(g.rows)
+		y := rand.Intn(g.columns)
+
+		if g[x][y].mine == false {
+			g[x][y].mine = true
+			m--
+		}
+	}
+
+	return nil
+
+}
+
+// generate takes the number of rows, columns, and mines you'd like to use
+// to generate the grid.
+func generate(r, c, m int) (grid, error) {
+
+	var g grid
+
+	// generate our grid
+	err := g.gen(r, c)
+	if err != nil {
+		return g, fmt.Errorf("failed to generate grid: %v", err)
+	}
+
+	// populate our grid with mines
+	err = g.populate(m)
+	if err != nil {
+		return g, fmt.Errorf("failed to populate mines: %v", err)
+	}
+
+	// populate adjacent counts
+	for x, r := range grid {
+		for y, c := range r {
+
+			adj := 0
+
+			// TODO add additional checks
+			if grid[x+1][y+1].mine == true {
+				adj++
+			}
+
+		}
+
+	}
+
+	return nil
 }
 
 func main() {
-  
+
+	var g grid
+
 }

@@ -118,7 +118,15 @@ func (g *grid) populate(m int) error {
 			// decrement our mine count
 			i--
 
-			// increment adjacent points mine counters TODO
+			// increment adjacent points mine counters
+			g.points[y+1][x].adjacent++
+			g.points[y-1][x].adjacent++
+			g.points[y][x+1].adjacent++
+			g.points[y][x-1].adjacent++
+			g.points[y+1][x+1].adjacent++
+			g.points[y-1][x-1].adjacent++
+			g.points[y+1][x-1].adjacent++
+			g.points[y-1][x+1].adjacent++
 
 		}
 
@@ -127,26 +135,6 @@ func (g *grid) populate(m int) error {
 	}
 
 	return nil
-
-}
-
-// getPoint gets a point based on the x, y coordinates supplied
-func (g *grid) getPoint(x, y int) (point, error) {
-
-	var p point
-
-	// check our inputs
-	if x > g.columns || x < 0 {
-		return p, fmt.Errorf("x is outside of grid %v x %v", g.columns, g.rows)
-	}
-	if y > g.rows || y < 0 {
-		return p, fmt.Errorf("y is outside of grid %v x %v", g.columns, g.rows)
-	}
-
-	// get our point off the grid
-	p = g.points[y][x]
-
-	return p, nil
 
 }
 

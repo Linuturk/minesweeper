@@ -109,11 +109,17 @@ func (g *grid) populate(m int) error {
 		y := rand.Intn(g.rows)
 		fmt.Printf("Checking coordinates (%v, %v)\n", x, y)
 
-		// if this random point isn't a mine, make it a mine and decrement
-		// our mine count
+		// if this random point isn't a mine, make it a mine
 		if g.points[y][x].mine == false {
+
+			// now it's a mine
 			g.points[y][x].mine = true
+
+			// decrement our mine count
 			i--
+
+			// increment adjacent points mine counters TODO
+
 		}
 
 		fmt.Printf("%v mines left to place\n", i)
@@ -144,79 +150,6 @@ func (g *grid) getPoint(x, y int) (point, error) {
 
 }
 
-// findAdjacent walks the grid and sets the adjacent value for each point
-func (g *grid) findAdjacent() error {
-
-	// walk all points
-	for _, row := range g.points {
-		for _, p := range row {
-
-			var adj int
-
-			// check all 8 adjacent points
-			// this feels really suboptimal, but I can't think of a better
-			// solution right now
-
-			// only process subtractions from x if it is greater than 0
-			// the boundry of our grid
-			if p.x > 0 {
-				if p.y > 0 {
-					if g.points[p.y-1][p.x-1].mine == true {
-						adj++
-					}
-				}
-				if p.y < g.rows {
-					if g.points[p.y+1][p.x-1].mine == true {
-						adj++
-					}
-				}
-				if g.points[p.y][p.x-1].mine == true {
-					adj++
-				}
-			}
-
-			// only process additions to x if it is less than our boundry
-			if p.x < g.columns {
-
-				if p.y > 0 {
-					if g.points[p.y-1][p.x+1].mine == true {
-						adj++
-					}
-				}
-				if p.y < g.rows {
-					if g.points[p.y+1][p.x+1].mine == true {
-						adj++
-					}
-				}
-				if g.points[p.y][p.x+1].mine == true {
-					adj++
-				}
-
-			}
-
-			// check our boundry when adding to y
-			if p.y < g.rows {
-				if g.points[p.y+1][p.x].mine == true {
-					adj++
-				}
-			}
-
-			// check our boundry when subtracting from y
-			if p.y > 0 {
-				if g.points[p.y-1][p.x].mine == true {
-					adj++
-				}
-			}
-
-			// set the adjacent count
-			g.points[p.y][p.x].adjacent = adj
-
-		}
-	}
-
-	return nil
-}
-
 // generate takes the number of rows, columns, and mines you'd like to use
 // to generate the grid.
 func generate(r, c, m int) (grid, error) {
@@ -233,12 +166,6 @@ func generate(r, c, m int) (grid, error) {
 	err = g.populate(m)
 	if err != nil {
 		return g, fmt.Errorf("failed to populate mines: %v", err)
-	}
-
-	// populate adjacent counts
-	err = g.findAdjacent()
-	if err != nil {
-		return g, fmt.Errorf("failed to set adjacent counts on points: %v", err)
 	}
 
 	return g, nil

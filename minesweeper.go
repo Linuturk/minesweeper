@@ -77,14 +77,15 @@ func (g *grid) gen(r, c int) error {
 
 	// build our grid
 	g.points = make([][]point, g.rows)
-	for i := range g.points {
-		g.points[i] = make([]point, g.columns)
-		for j, p := range g.points[i] {
-			p.x = j
-			p.y = i
+	for y := range g.points {
+		g.points[y] = make([]point, g.columns)
+		for x := range g.points[y] {
+			g.points[y][x].x = x
+			g.points[y][x].y = y
 		}
 	}
 
+	fmt.Printf("Grid generated: %+v\n", g)
 	return nil
 }
 
@@ -100,38 +101,26 @@ func (g *grid) populate(m int) error {
 	}
 
 	// populate with mines
+	fmt.Printf("Populating grid with %v mines...\n", m)
 	for i := m; i > 0; {
 
-		// get a random point
-		p := g.randomPoint()
+		// get random coordinates
+		x := rand.Intn(g.columns)
+		y := rand.Intn(g.rows)
+		fmt.Printf("Checking coordinates (%v, %v)\n", x, y)
 
-		// if this random point isn't a mine, make it a mine, decrement
-		// our mine count, and save it back to the grid
-		if p.mine == false {
-			p.mine = true
-			m--
-			g.points[p.y][p.x] = p
+		// if this random point isn't a mine, make it a mine and decrement
+		// our mine count
+		if g.points[y][x].mine == false {
+			g.points[y][x].mine = true
+			i--
 		}
+
+		fmt.Printf("%v mines left to place\n", i)
 
 	}
 
 	return nil
-
-}
-
-// randomPoint gets a random point from the grid
-func (g *grid) randomPoint() point {
-
-	// pick a random point
-	x := rand.Intn(g.columns)
-	y := rand.Intn(g.rows)
-
-	// get a point from the grid based on those coordinates
-	// skip error checking as we are bounded by the random int call
-	// above
-	p, _ := g.getPoint(x, y)
-
-	return p
 
 }
 
@@ -257,6 +246,7 @@ func generate(r, c, m int) (grid, error) {
 
 func main() {
 
+	log.Println("Generating grid...")
 	g, err := generate(3, 3, 2)
 	if err != nil {
 		log.Fatalf("failed to generate the grid: %v", err)

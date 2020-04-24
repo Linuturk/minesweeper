@@ -33,6 +33,8 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strings"
+	"time"
 )
 
 // grid is a slice of slices that contain a point
@@ -58,6 +60,30 @@ type point struct {
 	y        int
 }
 
+// display prints the grid using ASCII art
+func (g *grid) display() {
+
+	for i := g.rows; i > 0; i-- {
+		fmt.Printf(strings.Repeat("+---", g.columns))
+		fmt.Printf("+\n")
+		for _, p := range g.points[i-1] {
+			symbol := " "
+			if p.adjacent != 0 {
+				symbol = fmt.Sprintf("%v", p.adjacent)
+			}
+			if p.mine == true {
+				symbol = "X"
+			}
+
+			fmt.Printf("| %v ", symbol)
+		}
+		fmt.Printf("|\n")
+	}
+
+	fmt.Printf(strings.Repeat("+---", g.columns))
+	fmt.Printf("+\n")
+}
+
 // gen builds a grid based on the provided rows and columns
 func (g *grid) gen(r, c int) error {
 
@@ -81,7 +107,7 @@ func (g *grid) gen(r, c int) error {
 		}
 	}
 
-	fmt.Printf("Grid generated: %+v\n", g)
+	//fmt.Printf("Grid generated: %+v\n", g)
 	return nil
 }
 
@@ -103,7 +129,7 @@ func (g *grid) populate(m int) error {
 		// get random coordinates
 		x := rand.Intn(g.columns)
 		y := rand.Intn(g.rows)
-		fmt.Printf("Checking coordinates (%v, %v)\n", x, y)
+		//fmt.Printf("Checking coordinates (%v, %v)\n", x, y)
 
 		// if this random point isn't a mine, make it a mine
 		if g.points[y][x].mine == false {
@@ -179,12 +205,19 @@ func generate(r, c, m int) (grid, error) {
 
 func main() {
 
-	log.Println("Generating grid...")
-	g, err := generate(3, 3, 2)
+	// generate a random seed
+	rand.Seed(time.Now().UnixNano())
+
+	rows := 10
+	columns := 10
+	mines := 10
+
+	log.Printf("Generating %v by %v grid...\n", rows, columns)
+	g, err := generate(rows, columns, mines)
 	if err != nil {
 		log.Fatalf("failed to generate the grid: %v", err)
 	}
 
-	fmt.Printf("%+v", g)
+	g.display()
 
 }
